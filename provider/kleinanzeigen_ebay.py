@@ -16,7 +16,7 @@ class KleinanzeigenEbay(Provider):
         self.base_url = "https://www.ebay-kleinanzeigen.de"
         self.url = "https://www.ebay-kleinanzeigen.de/s-suchanfrage.html?keywords={keywords}&categoryId=&locationStr={location_str}&locationId={location_id}&radius={radius}&sortingField=SORTING_DATE&adType=&posterType=&pageNum=1&action=find&maxPrice={max_price}&minPrice={min_price}"
 
-    def search(self, keywords="", location_str="", location_id="", radius="", sorting="", ad_type="", poster_type="", max_price="", min_price=""):
+    def search(self, keywords="", location_str="", location_id="", radius="", sorting="", ad_type="", poster_type="", max_price="", min_price="", debug=False):
         """search for a specific article"""
 
         url = self.url.format(
@@ -38,7 +38,7 @@ class KleinanzeigenEbay(Provider):
 
         if articles is None:
             logging.info("Could not find any articles that matches your search...")
-            return False
+            return None
 
         informations = dict()
         for article in articles:
@@ -51,7 +51,7 @@ class KleinanzeigenEbay(Provider):
 
             description = self.read_article(href)
 
-            informations[href] = {
+            informations[self.base_url + href] = {
                                 "price": int(price.replace(" €", "").replace(" VB", "")),
                                 "VB": vb,
                                 "zip_code": zip_code,
@@ -61,10 +61,11 @@ class KleinanzeigenEbay(Provider):
                                 "header": header.text,
                                 "ignore": False}
 
-        with open("kleinanzeigen.json", "w", encoding="UTF-8") as f:
-            json.dump(informations, f, indent=2, ensure_ascii=False)
+        if debug is True:
+            with open("kleinanzeigen.json", "w", encoding="UTF-8") as f:
+                json.dump(informations, f, indent=2, ensure_ascii=False)
 
-        return True
+        return informations
 
     def read_article(self, href):
         r = requests.get(self.base_url + href)
@@ -83,4 +84,4 @@ class KleinanzeigenEbay(Provider):
 
 if __name__ == '__main__':
     kleinanzeigen = KleinanzeigenEbay()
-    kleinanzeigen.search("gtx 960 4gb", "Bochum", "", 100, max_price=150, min_price=50)
+    kleinanzeigen.search("gtx 960 4gb", "Bochum", "", 100, max_price=150, min_price=50, debug=True)

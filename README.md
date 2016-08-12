@@ -1,5 +1,5 @@
 # Kleinanzeigen Scraper
-A little helper program that sends you an email, if an article suits your needs.
+A little helper program that sends you an email if an article suits your needs.
 
 ----------
 ### TODO
